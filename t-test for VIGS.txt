@@ -1,0 +1,219 @@
+##### Style lengths and plots to view outliers ##########################
+
+### Import data and name it mydata
+
+treatment_B = mydata[mydata$Treatment == "B",]
+treatment_A = mydata[mydata$Treatment == "A",]
+
+### add the morph
+
+Smorph_data <- mydata
+
+#### make a histogram
+
+library(ggplot2)
+
+ggplot(Smorph_data, aes(x=Style_length, fill=Treatment)) +
+    geom_histogram( position = 'identity')
+
+# first make a new identity with both plant number and treatment
+Smorph_data$plants = paste(Smorph_data$Treatment,Smorph_data$Plant_id, sep ="_") 
+
+### make scatter plot
+
+library(ggplot2)
+
+ggplot(Smorph_data, aes(x=plants, y=Style_length)) +
+	geom_jitter(shape=16, position=position_jitter(0.2))
+
+
+
+
+#################### T- test ####################################################
+
+
+
+### 1)to compare mock and trv2-bas1(outliers)
+
+effect size(actual difference btw); mean(mydata3$MOCK) - mean(mydata3$`TRV2-BAS1 (OUTLIERS)`)
+[1] 0.69513
+
+t.test(x=mydata3$MOCK, y=mydata3$`TRV2-BAS1 (OUTLIERS)`)
+
+	Welch Two Sample t-test
+
+data:  mydata3$MOCK and mydata3$`TRV2-BAS1 (OUTLIERS)`
+t = 4.9097, df = 3.0591, p-value = 0.01545
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ 0.2494419 1.1408181
+sample estimates:
+mean of x mean of y 
+1.0297242 0.3345942 
+
+significant!!!! (*)
+
+### 2) to compare mock and trv2-bas1(no outliers)
+
+mean(mydata3$MOCK) - mean(mydata3$`TRV2-BAS1 (NO OUTLIERS)`)
+[1] 0.553831
+
+> t.test(x=mydata3$MOCK, y=mydata3$`TRV2-BAS1 (NO OUTLIERS)`)
+
+	Welch Two Sample t-test
+
+data:  mydata3$MOCK and mydata3$`TRV2-BAS1 (NO OUTLIERS)`
+t = 3.424, df = 4.7331, p-value = 0.02046
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ 0.1308847 0.9767772
+sample estimates:
+mean of x mean of y 
+1.0297242 0.4758932
+
+significant!!!! (*)
+
+
+### 3) to compare no outliers with outliers
+
+ mean(mydata3$`TRV2-BAS1 (OUTLIERS)`) - mean(mydata3$`TRV2-BAS1 (NO OUTLIERS)`)
+[1] -0.1412991
+
+t.test(x=mydata3$`TRV2-BAS1 (OUTLIERS)`, y=mydata3$`TRV2-BAS1 (NO OUTLIERS)`)
+
+	Welch Two Sample t-test
+
+data:  mydata3$`TRV2-BAS1 (OUTLIERS)` and mydata3$`TRV2-BAS1 (NO OUTLIERS)`
+t = -1.7513, df = 3.1858, p-value = 0.1728
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -0.3897980  0.1071998
+sample estimates:
+mean of x mean of y 
+0.3345942 0.4758932 
+
+not significant!!!! (ns)
+
+####################################################################################
+
+library(ggplot2)
+
+
+######################################### Z-SCORE #############################################################################
+## The z-score is a measure of how many standard deviations a value is from the mean.
+##To calculate the z-score, use the formula z=(x-μ)/σ, where x is the raw score, μ is the mean and σ is the standard deviation.
+### Z-score can be both positive and negative. The farther away from 0, higher the chance of a given data point being an outlier. Typically, a Z-score greater than 3 is considered extreme.
+
+https://www.machinelearningplus.com/machine-learning/how-to-detect-outliers-with-z-score/
+https://statsandr.com/blog/outliers-detection-in-r/
+https://statisticsbyjim.com/basics/z-score/
+https://mathsathome.com/z-scores/
+
+
+
+########################################## FOR MOCK ###############################################################
+> mean(mydata_Mock$Style_length)
+
+0.3968313
+>sd(mydata_Mock$Style_length)
+[1] 0.04408487
+##zscore
+> ((mydata_Mock$Style_length)- mean(mydata_Mock$Style_length))/sd(mydata_Mock$Style_length)
+
+###save to a file first put in a data frame 
+df <- data.frame ((mydata_Mock$Style_length)- mean(mydata_Mock$Style_length))/sd(mydata_Mock$Style_length)
+
+##TO WRITE TO EXCEL
+##find the path to where to safe it with the new file name then use the write command
+##for example; C:\\Users\\abaya\\OneDrive\\Desktop\\thesis\\vigs phenotype 2\\Z-SCORE_MOCK.xlsx
+
+###command to use to put into an excel file
+> library(writexl)
+> write_xlsx(df, 'C:\\Users\\abaya\\OneDrive\\Desktop\\thesis\\vigs phenotype 2\\Z-SCORE_MOCK.xlsx')
+
+######## HOW TO FIND HOW MANY OUTLIERS ARE IN THE DATASET ########################################################################################
+
+### Recall that The standard cutoff values for finding outliers are z-scores of >3 or more extreme
+
+##Import the Excel file that has the z-scores then run the command which
+
+> which(Z_SCORE_MOCK$`Z-SCORE`>3)
+
+### AFTER RESULT ###
+integer(0)
+
+##### OR ###########
+
+length(which(Z_SCORE_MOCK$`Z-SCORE` >3))
+
+##### AFTER RESULTS #########
+[1] 0
+
+
+
+############## FOR TRV2-BAS1 ####################################################################
+
+> mean(Style_length_TRV2_BAS1$Style_length)
+[1]0.4020014
+
+> sd(Style_length_TRV2_BAS1$Style_length)
+[1] 0.04650831
+
+##zscore
+> ((Style_length_TRV2_BAS1$Style_length)- mean(Style_length_TRV2_BAS1$Style_length))/sd(Style_length_TRV2_BAS1$Style_length)
+df <- data.frame ((Style_length_TRV2_BAS1$Style_length)- mean(Style_length_TRV2_BAS1$Style_length))/sd(Style_length_TRV2_BAS1$Style_length)
+library(writexl)
+write_xlsx(df, 'C:\\Users\\abaya\\OneDrive\\Desktop\\thesis\\vigs phenotype 2\\Z-SCORE_TRV2_BAS1.xlsx')
+which(Z-SCORE_TRV2_BAS1$`Z-SCORE`>3)
+
+###gives the row numbers of where the outliers are 
+
+210 372 488 496 680 688
+
+## HOW TO FIND THE NUMBER OF OUTLIERS NOT THE ROW NUMBER #################
+
+length(which(Z_SCORE_TRV2_BAS1$`Z-SCORE` >3))
+
+### AFTER RESULT #####
+[1] 6 
+
+######## To get the plants that have these outliers USING A FIGURE ##############
+
+FILE NAME = ALL_DATA_STYLE_LENGTH_AND_PLANTS
+# First make a new identity with both plant number and treatment
+ALL_DATA_STYLE_LENGTH_AND_PLANTS$Plants = paste(ALL_DATA_STYLE_LENGTH_AND_PLANTS$Treatment,ALL_DATA_STYLE_LENGTH_AND_PLANTS$Plant_id, sep ="-") 
+
+#### HOW TO PLOT ########################################################
+library(ggplot2)
+
+ggplot(ALL_DATA_STYLE_LENGTH_AND_PLANTS, aes(x=pants, y=Style_length)) +
+	geom_jitter(shape=16, position=position_jitter(0.2))
+
+
+###make a new column so that the plants can show the treatment nummber
+
+mydata$plants = paste(mydata$Treatment,mydata$Plant_id, sep ="_")
+
+###### for the z-score plot
+
+ ggplot(mydata, aes(x=plants, y=Style_length_Zscore)) + 
+   geom_jitter(shape=16, position=position_jitter(0.2))
+
+
+###########################
+
+ggplot(mydata, aes(x=plants, y=Style_length_Zscore)) + 
+  geom_jitter(shape=16, position=position_jitter(0.2)) +
+  scale_y_continuous(limits=c(-3, 4)) +
+ 
+
+or
+
+ggplot(mydata, aes(x=plants, y=Style_length_Zscore)) + 
++     geom_jitter(shape=16, position=position_jitter(0.1)) +
++     scale_y_continuous(limits=c(-4, 4)) 
+
+ggplot(mydata, aes(x=Style_length_Z-score, fill=Treatment)) +
+    geom_histogram( position = 'identity')
+
+
